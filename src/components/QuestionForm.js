@@ -20,7 +20,25 @@ function QuestionForm(props) {
   function handleSubmit(event) {
     event.preventDefault();
     console.log(formData);
-    addingNewQuestion(formData);
+    const postedQuestion = {
+      prompt: formData.prompt,
+      answers:[
+        formData.answer1, 
+        formData.answer2, 
+        formData.answer3, 
+        formData.answer4],
+      correctIndex: formData.correctIndex,
+    }
+
+    fetch('http://localhost:4000/questions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(postedQuestion)
+    })
+    .then(res => res.json())
+    .then(postedQuestion => props.onSubmitQuestion(postedQuestion))
+    .catch(error => console.log(error));
+
     setFormData({
       prompt: "",
       answer1: "",
@@ -28,24 +46,6 @@ function QuestionForm(props) {
       answer3: "",
       answer4: "",
       correctIndex: 0,
-    });
-  }
-  function addingNewQuestion(newQuestion) {
-    fetch("http://localhost:4000/questions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: newQuestion.prompt,
-        answers: [
-          newQuestion.answer1,
-          newQuestion.answer2,
-          newQuestion.answer3,
-          newQuestion.answer4,
-        ],
-        correctIndex: parseInt(newQuestion.correctIndex),
-      }),
     });
   }
 
@@ -103,7 +103,8 @@ function QuestionForm(props) {
           <select
             name="correctIndex"
             value={formData.correctIndex}
-            onChange={handleChange}>
+            onChange={handleChange}
+          >
             <option value="0">{formData.answer1}</option>
             <option value="1">{formData.answer2}</option>
             <option value="2">{formData.answer3}</option>
